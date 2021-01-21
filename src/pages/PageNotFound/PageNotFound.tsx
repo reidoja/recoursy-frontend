@@ -13,7 +13,7 @@ export default function PageNotFound({}: Props): ReactElement {
       alignItems="center"
       justifyContent="center">
       <Typography variant="h3" color="error">
-        404 Page Not Found :(
+        404 Page Not Found
       </Typography>
     </Box>
   );

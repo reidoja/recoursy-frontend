@@ -46,7 +46,7 @@
     ]
   },
   "devDependencies": {
-    "@types/react-router": "^5.1.11",
+    "@types/react-router": "^5.1.10",
     "@types/react-router-dom": "^5.1.7"
   }
 }
