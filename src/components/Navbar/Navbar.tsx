@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   title: {
     flexGrow: 1,
+    cursor: 'pointer',
   },
   overlay: {
     top: '64px',
@@ -99,10 +100,16 @@ export default function Navbar({}: Props): ReactElement {
           aria-label="open drawer">
           <MenuIcon />
         </IconButton>
-        <Typography className={classes.title} variant="h6" noWrap>
+        <Typography
+          onClick={() => history.push('/home')}
+          className={classes.title}
+          variant="h6"
+          noWrap>
           ReCourSy
         </Typography>
-        <Button color="inherit">Login</Button>
+        <Button onClick={() => history.push('/login')} color="inherit">
+          Login
+        </Button>
       </Toolbar>
       <Box className={isOpen ? classes.overlay : classes.hideOverlay}>
         <List className={isOpen ? classes.content : classes.hideSideBar}>
