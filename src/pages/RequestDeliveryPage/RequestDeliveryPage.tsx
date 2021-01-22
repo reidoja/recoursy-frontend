@@ -11,6 +11,8 @@ import {
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import React, { ReactElement, useState } from 'react';
+import useCreateDelivery from '../../effects/mutations/delivery/useCreateDelivery';
+import { PostDelivery } from '../../models/Delivery';
 
 const useStyles = makeStyles((theme: Theme) => ({
   addBtn: {
@@ -19,15 +21,36 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 interface Props {}
-
 export default function RequestDeliveryPage({}: Props): ReactElement {
   const classes = useStyles();
 
+  const [from, setFrom] = useState('');
+
   const [detailRequest, setDetailRequest] = useState<
-    { to: string; receiver: string; item: string; note: string }[]
+    {
+      room_destination: string;
+      to: string;
+      itemName: string;
+      itemNote: string;
+    }[]
   >([]);
 
-  console.log(detailRequest);
+  const [
+    createDelivery,
+    {
+      isLoading: isDeliveryLoading,
+      error: deliveryError,
+      status: deliveryStatus,
+    },
+  ] = useCreateDelivery();
+
+  const handleSubmit = () => {
+    const data: PostDelivery = {
+      from: from,
+      details: detailRequest,
+    };
+    createDelivery(data);
+  };
 
   return (
     <Box width="100%" display="flex" justifyContent="center">
@@ -38,17 +61,25 @@ export default function RequestDeliveryPage({}: Props): ReactElement {
         <Card>
           <CardContent>
             <Box display="flex" flexDirection="column" alignItems="flex-start">
-              <TextField type="text" label="From" />
+              <TextField
+                type="text"
+                label="From"
+                value={from}
+                onChange={(el) => {
+                  const value = el.target.value;
+                  setFrom(value);
+                }}
+              />
               <Box py={2} width="100%" display="flex" justifyContent="flex-end">
                 <Button
                   className={classes.addBtn}
                   variant="outlined"
                   onClick={() => {
                     const newArr = {
+                      room_destination: '',
                       to: '',
-                      receiver: '',
-                      item: '',
-                      note: '',
+                      itemName: '',
+                      itemNote: '',
                     };
                     setDetailRequest((oldArray) => [...oldArray, newArr]);
                   }}>
@@ -78,10 +109,10 @@ export default function RequestDeliveryPage({}: Props): ReactElement {
                       onChange={(e) => {
                         const value = e.target.value;
                         let newArr = [...detailRequest];
-                        newArr[index].to = value;
+                        newArr[index].room_destination = value;
                         setDetailRequest(newArr);
                       }}
-                      value={el.to}
+                      value={el.room_destination}
                       variant="outlined"
                       type="text"
                       label="To"
@@ -90,10 +121,10 @@ export default function RequestDeliveryPage({}: Props): ReactElement {
                       onChange={(e) => {
                         const value = e.target.value;
                         let newArr = [...detailRequest];
-                        newArr[index].receiver = value;
+                        newArr[index].to = value;
                         setDetailRequest(newArr);
                       }}
-                      value={el.receiver}
+                      value={el.to}
                       type="text"
                       variant="outlined"
                       label="Receiver"
@@ -109,10 +140,10 @@ export default function RequestDeliveryPage({}: Props): ReactElement {
                         onChange={(e) => {
                           const value = e.target.value;
                           let newArr = [...detailRequest];
-                          newArr[index].item = value;
+                          newArr[index].itemName = value;
                           setDetailRequest(newArr);
                         }}
-                        value={el.item}
+                        value={el.itemName}
                         type="text"
                         variant="outlined"
                         label="Item"
@@ -123,12 +154,12 @@ export default function RequestDeliveryPage({}: Props): ReactElement {
                       onChange={(e) => {
                         const value = e.target.value;
                         let newArr = [...detailRequest];
-                        newArr[index].note = value;
+                        newArr[index].itemNote = value;
                         setDetailRequest(newArr);
                       }}
                       multiline
                       variant="outlined"
-                      value={el.note}
+                      value={el.itemNote}
                       type="text"
                       label="Note"
                       InputProps={{
@@ -141,6 +172,11 @@ export default function RequestDeliveryPage({}: Props): ReactElement {
             </Box>
           </CardContent>
         </Card>
+        <Box width="100%" py={2} display="flex" justifyContent="flex-end">
+          <Button onClick={handleSubmit} variant="contained" color="primary">
+            Request
+          </Button>
+        </Box>
       </Box>
     </Box>
   );

@@ -16,6 +16,9 @@ import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
 import MenuIcon from '@material-ui/icons/Menu';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import { useHistory } from 'react-router';
+import { eraseCookie } from '../../utils/cookies';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import userState from '../../states/UserState';
 interface Props {}
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -29,6 +32,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   title: {
     flexGrow: 1,
     cursor: 'pointer',
+  },
+  none: {
+    display: 'none',
   },
   overlay: {
     top: '64px',
@@ -87,7 +93,11 @@ export default function Navbar({}: Props): ReactElement {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const [user, setUser] = useRecoilState(userState);
+
   const history = useHistory();
+
+  console.log(user);
 
   return (
     <AppBar position="fixed" className={classes.root}>
@@ -107,14 +117,24 @@ export default function Navbar({}: Props): ReactElement {
           noWrap>
           ReCourSy
         </Typography>
-        <Button onClick={() => history.push('/login')} color="inherit">
-          Login
+        <Typography>Hello, {user?.user.name}</Typography>
+        <Button
+          onClick={() => {
+            setUser(null);
+            eraseCookie('tkn');
+          }}
+          color="inherit">
+          Logout
         </Button>
       </Toolbar>
       <Box className={isOpen ? classes.overlay : classes.hideOverlay}>
         <List className={isOpen ? classes.content : classes.hideSideBar}>
           <ListItem
-            className={classes.listItem}
+            className={`${
+              user && user.user.role === 'user'
+                ? classes.none
+                : classes.listItem
+            }`}
             onClick={() => {
               history.push('/set-working-hour');
               setIsOpen(false);
@@ -126,11 +146,19 @@ export default function Navbar({}: Props): ReactElement {
               history.push('/view-delivery-status');
               setIsOpen(false);
             }}
-            className={classes.listItem}>
+            className={`${
+              user && user.user.role === 'user'
+                ? classes.none
+                : classes.listItem
+            }`}>
             View Delivery Status <ArrowForwardIosIcon />
           </ListItem>
           <ListItem
-            className={classes.listItem}
+            className={
+              user && user.user.role === 'admin'
+                ? classes.none
+                : classes.listItem
+            }
             onClick={() => {
               history.push('/view-working-hour');
               setIsOpen(false);
@@ -138,7 +166,11 @@ export default function Navbar({}: Props): ReactElement {
             View Working Hour <ArrowForwardIosIcon />
           </ListItem>
           <ListItem
-            className={classes.listItem}
+            className={
+              user && user.user.role === 'admin'
+                ? classes.none
+                : classes.listItem
+            }
             onClick={() => {
               history.push('/view-request');
               setIsOpen(false);
@@ -146,7 +178,11 @@ export default function Navbar({}: Props): ReactElement {
             View Request <ArrowForwardIosIcon />
           </ListItem>
           <ListItem
-            className={classes.listItem}
+            className={
+              user && user.user.role === 'admin'
+                ? classes.none
+                : classes.listItem
+            }
             onClick={() => {
               history.push('/view-delivery-history');
               setIsOpen(false);
@@ -154,7 +190,11 @@ export default function Navbar({}: Props): ReactElement {
             View Delivery History <ArrowForwardIosIcon />
           </ListItem>
           <ListItem
-            className={classes.listItem}
+            className={
+              user && user.user.role === 'admin'
+                ? classes.none
+                : classes.listItem
+            }
             onClick={() => {
               history.push('/request-delivery');
               setIsOpen(false);

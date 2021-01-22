@@ -6,10 +6,13 @@ import {
   List,
   ListItem,
   makeStyles,
+  TextField,
   Theme,
   Typography,
 } from '@material-ui/core';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
+import useFetchWorkHour from '../../effects/queries/workhour/useFetchWorkHour';
+import SearchIcon from '@material-ui/icons/Search';
 
 interface Props {}
 
@@ -27,21 +30,18 @@ const useStyles = makeStyles((theme: Theme) => ({
   card: {
     marginBottom: '24px',
   },
+  searchIcon: {
+    color: theme.palette.primary.main,
+  },
 }));
-
-const data = [
-  {
-    from: '09.00',
-    to: '12.00',
-  },
-  {
-    from: '09.00',
-    to: '12.00',
-  },
-];
 
 export default function ViewWorkingHourPage({}: Props): ReactElement {
   const classes = useStyles();
+
+  const [search, setSearch] = useState('');
+  const [thisSearch, setThisSearch] = useState('');
+
+  const { data: dataWorkHour, error: errorWorkHour } = useFetchWorkHour(search);
 
   return (
     <Box width="100%" display="flex" justifyContent="center">
@@ -49,17 +49,47 @@ export default function ViewWorkingHourPage({}: Props): ReactElement {
         <Box display="flex" justifyContent="flex-start" my={2}>
           <Typography variant="h4">Working Hour</Typography>
         </Box>
+        <Box width="100%" display="flex" justifyContent="flex-end" py={2}>
+          <TextField
+            value={thisSearch}
+            onChange={(e) => {
+              const value = e.target.value;
+              setThisSearch(value);
+            }}
+            type="text"
+            onKeyPress={(ev) => {
+              if (ev.key === 'Enter') {
+                setSearch(thisSearch);
+              }
+            }}
+            variant="outlined"
+            InputProps={{
+              endAdornment: (
+                <IconButton
+                  onClick={() => {
+                    setSearch(thisSearch);
+                  }}
+                  size="small"
+                  className={classes.searchIcon}>
+                  <SearchIcon color="inherit" />
+                </IconButton>
+              ),
+            }}
+            placeholder="Search..."
+          />
+        </Box>
         <Card>
           <CardContent>
             <List>
-              {data.map((el, index) => (
-                <ListItem key={index} className={classes.listItem}>
-                  <Box>
-                    <Typography>From : {el.from}</Typography>
-                    <Typography>To : {el.to}</Typography>
-                  </Box>
-                </ListItem>
-              ))}
+              {dataWorkHour &&
+                dataWorkHour.map((el, index) => (
+                  <ListItem key={index} className={classes.listItem}>
+                    <Box>
+                      <Typography>From : {el.from}</Typography>
+                      <Typography>To : {el.to}</Typography>
+                    </Box>
+                  </ListItem>
+                ))}
             </List>
           </CardContent>
         </Card>

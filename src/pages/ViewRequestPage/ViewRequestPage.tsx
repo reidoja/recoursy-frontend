@@ -11,6 +11,9 @@ import {
   Typography,
 } from '@material-ui/core';
 import React, { ReactElement } from 'react';
+import useCancelDelivery from '../../effects/mutations/delivery/useCancelDelivery';
+import useFetchRequest from '../../effects/queries/delivery/useFetchRequest';
+import formatDateAndTime from '../../utils/formatDateAndTime';
 
 interface Props {}
 
@@ -30,41 +33,18 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const data = [
-  {
-    delivery_id: '12345',
-    date: 'Jan 16 2020',
-    from: '1305',
-    item_name: 'Surat Peringatan',
-    to: '1405',
-    receiver: 'asd@gmail.com',
-    status: 'Pending',
-    note: 'Berkas warna coklat, tali merah',
-  },
-  {
-    delivery_id: '12345',
-    date: 'Jan 16 2020',
-    from: '1305',
-    item_name: 'Surat Peringatan',
-    to: '1405',
-    receiver: 'asd@gmail.com',
-    status: 'Pending',
-    note: 'Berkas warna coklat, tali merah',
-  },
-  {
-    delivery_id: '12345',
-    date: 'Jan 16 2020',
-    from: '1305',
-    item_name: 'Surat Peringatan',
-    to: '1405',
-    receiver: 'asd@gmail.com',
-    status: 'Pending',
-    note: 'Berkas warna coklat, tali merah',
-  },
-];
-
 export default function ViewRequestPage({}: Props): ReactElement {
   const classes = useStyles();
+
+  const { data: dataRequest } = useFetchRequest();
+  const [
+    cancelDelivery,
+    {
+      isLoading: isDeliveryLoading,
+      error: deliveryError,
+      status: deliveryStatus,
+    },
+  ] = useCancelDelivery();
 
   return (
     <Box width="100%" display="flex" justifyContent="center">
@@ -72,58 +52,71 @@ export default function ViewRequestPage({}: Props): ReactElement {
         <Box display="flex" justifyContent="flex-start" my={2}>
           <Typography variant="h4">View Request</Typography>
         </Box>
-        {data.map((el, index) => (
-          <Card className={classes.card} key={index}>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between">
-                <Typography>Delivery Id : {el.delivery_id}</Typography>
-                <Typography>Date : {el.date}</Typography>
-              </Box>
-              <Box
-                py={2}
-                display="flex"
-                flexDirection="row"
-                justifyContent="space-between">
-                <Typography>From : {el.from}</Typography>
-                <Typography>To : {el.to}</Typography>
-              </Box>
-              <Box
-                py={2}
-                display="flex"
-                flexDirection="row"
-                justifyContent="space-between">
-                <Typography>Receiver : {el.receiver}</Typography>
-                <Typography>Status : {el.status}</Typography>
-              </Box>
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="flex-start">
-                <Typography>Item Name : {el.item_name}</Typography>
-                <Box width="100%" py={1}>
-                  <TextField
-                    label="Note"
-                    fullWidth
-                    multiline
-                    variant="outlined"
-                    color="primary"
-                    size="small"
-                    value={el.note}
-                    disabled
-                    InputProps={{
-                      rows: 2,
-                    }}
-                  />
-                </Box>
-              </Box>
-              <Box width="100%" display="flex" justifyContent="flex-end">
-                <Button variant="contained" color="secondary">
-                  Cancel
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        ))}
+        {dataRequest &&
+          dataRequest.map((el) => (
+            <>
+              {el.details.map((el1, index) => (
+                <Card className={classes.card} key={index}>
+                  <CardContent>
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography>Delivery Id : {el.id}</Typography>
+                      <Typography>
+                        Date : {formatDateAndTime(el.create_at)}
+                      </Typography>
+                    </Box>
+                    <Box
+                      py={2}
+                      display="flex"
+                      flexDirection="row"
+                      justifyContent="space-between">
+                      <Typography>From : {el.from}</Typography>
+                      <Typography>To : {el1.room_destination}</Typography>
+                    </Box>
+                    <Box
+                      py={2}
+                      display="flex"
+                      flexDirection="row"
+                      justifyContent="space-between">
+                      <Typography>Receiver : {el1.to}</Typography>
+                      <Typography>Status : {el1.status}</Typography>
+                    </Box>
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="flex-start">
+                      <Typography>Item Name : {el1.itemName}</Typography>
+                      <Box width="100%" py={1}>
+                        <TextField
+                          label="Note"
+                          fullWidth
+                          multiline
+                          variant="outlined"
+                          color="primary"
+                          size="small"
+                          value={el1.itemNote}
+                          disabled
+                          InputProps={{
+                            rows: 2,
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                    <Box width="100%" display="flex" justifyContent="flex-end">
+                      <Button
+                        onClick={() => {
+                          cancelDelivery(el1.id);
+                        }}
+                        variant="contained"
+                        color="secondary"
+                        disabled={el1.status === 'delivered' ? true : false}>
+                        Cancel
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          ))}
       </Box>
     </Box>
   );
