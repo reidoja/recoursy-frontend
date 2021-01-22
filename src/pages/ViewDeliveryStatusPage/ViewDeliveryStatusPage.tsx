@@ -13,6 +13,11 @@ import {
 import React, { ReactElement, useEffect, useState } from 'react';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import SelectInput from '../../components/SelectInput/SelectInput';
+import useFetchAdminPending from '../../effects/queries/delivery/useFetchAdminPending';
+import useFetchAdminDelivered from '../../effects/queries/delivery/useFetchAdminDelivered';
+import formatDateAndTime from '../../utils/formatDateAndTime';
+import { DeliveryHistory } from '../../models/Delivery';
+import useUpdateStatusDelivery from '../../effects/mutations/delivery/useUpdateStatusDelivery';
 
 const useStyles = makeStyles((theme: Theme) => ({
   list: {
@@ -27,6 +32,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   card: {
     marginBottom: '24px',
+  },
+  none: {
+    display: 'none',
   },
 }));
 
@@ -73,7 +81,42 @@ interface Props {}
 export default function ViewDeliveryStatusPage({}: Props): ReactElement {
   const classes = useStyles();
 
-  const [listStatus, setListStatus] = useState<string[]>([]);
+  const { data: dataAdminPending } = useFetchAdminPending();
+  const { data: dataAdminDelivered } = useFetchAdminDelivered();
+
+  const [adminPendingState, setAdminPendingState] = useState<DeliveryHistory[]>(
+    []
+  );
+  const [adminDeliveredState, setAdminDeliveredState] = useState<
+    DeliveryHistory[]
+  >([]);
+
+  const [
+    updateStatusDelivery,
+    {
+      isLoading: isDeliveryLoading,
+      error: deliveryError,
+      status: deliveryStatus,
+    },
+  ] = useUpdateStatusDelivery();
+
+  useEffect(() => {
+    if (!dataAdminPending) return;
+    const newData: DeliveryHistory[] = [];
+    dataAdminPending.map((el, index) => {
+      newData.push(el);
+    });
+    setAdminPendingState(newData);
+  }, [dataAdminPending]);
+
+  useEffect(() => {
+    if (!dataAdminDelivered) return;
+    const newData: DeliveryHistory[] = [];
+    dataAdminDelivered.map((el, index) => {
+      newData.push(el);
+    });
+    setAdminDeliveredState(newData);
+  }, [dataAdminDelivered]);
 
   return (
     <Box width="100%" display="flex" justifyContent="center">
@@ -88,162 +131,208 @@ export default function ViewDeliveryStatusPage({}: Props): ReactElement {
         </Box>
         <Box width="100%" display="flex">
           <Box width="50%" p={2}>
-            {data.map((el, index) => (
-              <Card className={classes.card} key={index}>
-                <CardContent>
-                  <Box display="flex" justifyContent="space-between">
-                    <Typography>Delivery Id : {el.delivery_id}</Typography>
-                    <Typography>Date : {el.date}</Typography>
-                  </Box>
-                  <Box
-                    py={2}
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="flex-start">
-                    <Typography>From : {el.from}</Typography>
-                  </Box>
-                  <Box borderBottom="1px solid" />
-                  <List className={classes.list}>
-                    {el.detail.map((el1, index) => (
-                      <ListItem className={classes.listItem} key={index}>
-                        <Box display="flex" width="100%">
-                          <Typography>Item Name : {el1.item_name}</Typography>
-                        </Box>
-                        <Box
-                          width="100%"
-                          py={2}
-                          display="flex"
-                          justifyContent="space-between">
-                          <Box
-                            display="flex"
-                            flexDirection="column"
-                            alignItems="flex-start">
-                            <Typography>To : {el1.to}</Typography>
-                            <Typography>Receiver : {el1.receiver}</Typography>
+            {adminPendingState &&
+              Object.values(adminPendingState).map((el, index) => (
+                <Card
+                  className={
+                    el.details.length < 1 ? classes.none : classes.card
+                  }
+                  key={index}>
+                  <CardContent>
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography>Delivery Id : {el.id}</Typography>
+                      <Typography>
+                        Date : {formatDateAndTime(el.create_at)}
+                      </Typography>
+                    </Box>
+                    <Box
+                      py={2}
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="flex-start">
+                      <Typography>From : {el.from}</Typography>
+                    </Box>
+                    <Box borderBottom="1px solid" />
+                    <List className={classes.list}>
+                      {el.details.map((el1, idx) => (
+                        <ListItem className={classes.listItem} key={idx}>
+                          <Box display="flex" width="100%">
+                            <Typography>Item Name : {el1.itemName}</Typography>
                           </Box>
                           <Box
+                            width="100%"
+                            py={2}
                             display="flex"
-                            flexDirection="column"
-                            justifyContent="flex-end"
-                            width="163.2px"
-                            pt={1}>
-                            <SelectInput
-                              label="Status"
-                              value={el1.status}
-                              onChange={(e) => {}}
-                              options={[
-                                { value: 'Completed' },
-                                { value: 'Pending' },
-                                { value: 'Canceled' },
-                              ]}
+                            justifyContent="space-between">
+                            <Box
+                              display="flex"
+                              flexDirection="column"
+                              alignItems="flex-start">
+                              <Typography>
+                                To : {el1.room_destination}
+                              </Typography>
+                              <Typography>Receiver : {el1.to}</Typography>
+                            </Box>
+                            <Box
+                              display="flex"
+                              flexDirection="column"
+                              justifyContent="flex-end"
+                              width="163.2px"
+                              pt={1}>
+                              <SelectInput
+                                label="Status"
+                                value={el1.status}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  setAdminPendingState((prev) => {
+                                    const newState = [...prev];
+                                    newState[index].details[idx].status = value;
+                                    return newState;
+                                  });
+                                }}
+                                options={[
+                                  { value: 'completed', text: 'Completed' },
+                                  { value: 'delivered', text: 'Delivered' },
+                                  { value: 'pending', text: 'Pending' },
+                                ]}
+                              />
+                            </Box>
+                          </Box>
+                          <Box py={2} width="100%">
+                            <TextField
+                              label="Note"
+                              fullWidth
+                              multiline
+                              variant="outlined"
+                              color="primary"
+                              size="small"
+                              value={el1.itemNote}
+                              disabled
+                              InputProps={{
+                                rows: 2,
+                              }}
                             />
                           </Box>
-                        </Box>
-                        <Box py={2} width="100%">
-                          <TextField
-                            label="Note"
-                            fullWidth
-                            multiline
-                            variant="outlined"
-                            color="primary"
-                            size="small"
-                            value={el1.note}
-                            disabled
-                            InputProps={{
-                              rows: 2,
-                            }}
-                          />
-                        </Box>
-                      </ListItem>
-                    ))}
-                  </List>
-                  <Box width="100%" display="flex" justifyContent="flex-end">
-                    <Button variant="contained" color="primary">
-                      Update
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            ))}
+                          <Box
+                            width="100%"
+                            display="flex"
+                            justifyContent="flex-end">
+                            <Button
+                              onClick={() => {
+                                const data = {
+                                  id: el1.id,
+                                  status: el1.status,
+                                };
+                                updateStatusDelivery(data);
+                              }}
+                              variant="contained"
+                              color="primary">
+                              Update
+                            </Button>
+                          </Box>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </CardContent>
+                </Card>
+              ))}
           </Box>
           <Box width="50%" p={2}>
-            {data.map((el, index) => (
-              <Card className={classes.card} key={index}>
-                <CardContent>
-                  <Box display="flex" justifyContent="space-between">
-                    <Typography>Delivery Id : {el.delivery_id}</Typography>
-                    <Typography>Date : {el.date}</Typography>
-                  </Box>
-                  <Box
-                    py={2}
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="flex-start">
-                    <Typography>From : {el.from}</Typography>
-                  </Box>
-                  <Box borderBottom="1px solid" />
-                  <List className={classes.list}>
-                    {el.detail.map((el1, index) => (
-                      <ListItem className={classes.listItem} key={index}>
-                        <Box display="flex" width="100%">
-                          <Typography>Item Name : {el1.item_name}</Typography>
-                        </Box>
-                        <Box
-                          width="100%"
-                          py={2}
-                          display="flex"
-                          justifyContent="space-between">
-                          <Box
-                            display="flex"
-                            flexDirection="column"
-                            alignItems="flex-start">
-                            <Typography>To : {el1.to}</Typography>
-                            <Typography>Receiver : {el1.receiver}</Typography>
+            {adminDeliveredState &&
+              Object.values(adminDeliveredState).map((el, index) => (
+                <Card
+                  className={
+                    el.details.length < 1 ? classes.none : classes.card
+                  }
+                  key={index}>
+                  <CardContent>
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography>Delivery Id : {el.id}</Typography>
+                      <Typography>
+                        Date : {formatDateAndTime(el.create_at)}
+                      </Typography>
+                    </Box>
+                    <Box
+                      py={2}
+                      display="flex"
+                      flexDirection="column"
+                      alignItems="flex-start">
+                      <Typography>From : {el.from}</Typography>
+                    </Box>
+                    <Box borderBottom="1px solid" />
+                    <List className={classes.list}>
+                      {el.details.map((el1, idx) => (
+                        <ListItem className={classes.listItem} key={idx}>
+                          <Box display="flex" width="100%">
+                            <Typography>Item Name : {el1.itemName}</Typography>
                           </Box>
                           <Box
+                            width="100%"
+                            py={2}
                             display="flex"
-                            flexDirection="column"
-                            justifyContent="flex-end"
-                            width="163.2px"
-                            pt={1}>
-                            <SelectInput
-                              label="Status"
-                              value={el1.status}
-                              onChange={(e) => {}}
-                              options={[
-                                { value: 'Completed' },
-                                { value: 'Pending' },
-                                { value: 'Canceled' },
-                              ]}
+                            justifyContent="space-between">
+                            <Box
+                              display="flex"
+                              flexDirection="column"
+                              alignItems="flex-start">
+                              <Typography>
+                                To : {el1.room_destination}
+                              </Typography>
+                              <Typography>Receiver : {el1.to}</Typography>
+                            </Box>
+                            <Box
+                              display="flex"
+                              flexDirection="column"
+                              justifyContent="flex-end"
+                              width="163.2px"
+                              pt={1}>
+                              <SelectInput
+                                label="Status"
+                                value={el1.status}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  setAdminDeliveredState((prev) => {
+                                    const newState = [...prev];
+                                    newState[index].details[idx].status = value;
+                                    return newState;
+                                  });
+                                }}
+                                options={[
+                                  { value: 'completed', text: 'Completed' },
+                                  { value: 'delivered', text: 'Delivered' },
+                                ]}
+                              />
+                            </Box>
+                          </Box>
+                          <Box py={2} width="100%">
+                            <TextField
+                              label="Note"
+                              fullWidth
+                              multiline
+                              variant="outlined"
+                              color="primary"
+                              size="small"
+                              value={el1.itemNote}
+                              disabled
+                              InputProps={{
+                                rows: 2,
+                              }}
                             />
                           </Box>
-                        </Box>
-                        <Box py={2} width="100%">
-                          <TextField
-                            label="Note"
-                            fullWidth
-                            multiline
-                            variant="outlined"
-                            color="primary"
-                            size="small"
-                            value={el1.note}
-                            disabled
-                            InputProps={{
-                              rows: 2,
-                            }}
-                          />
-                        </Box>
-                      </ListItem>
-                    ))}
-                  </List>
-                  <Box width="100%" display="flex" justifyContent="flex-end">
-                    <Button variant="contained" color="primary">
-                      Update
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            ))}
+                          <Box
+                            width="100%"
+                            display="flex"
+                            justifyContent="flex-end">
+                            <Button variant="contained" color="primary">
+                              Update
+                            </Button>
+                          </Box>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </CardContent>
+                </Card>
+              ))}
           </Box>
         </Box>
       </Box>

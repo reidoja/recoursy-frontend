@@ -97,8 +97,6 @@ export default function Navbar({}: Props): ReactElement {
 
   const history = useHistory();
 
-  console.log(user);
-
   return (
     <AppBar position="fixed" className={classes.root}>
       <Toolbar>

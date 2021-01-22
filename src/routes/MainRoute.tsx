@@ -28,13 +28,13 @@ export default function MainRoute({}: Props): ReactElement {
           path="/view-delivery-history"
           component={ViewDeliveryHistoryPage}
         />
-        <Route exact path="/view-request" component={ViewRequestPage} />
-        <Route exact path="/set-working-hour" component={SetWorkingHourPage} />
         <Route
           exact
           path="/view-working-hour"
           component={ViewWorkingHourPage}
         />
+        <Route exact path="/view-request" component={ViewRequestPage} />
+        <Route exact path="/set-working-hour" component={SetWorkingHourPage} />
         <Route
           exact
           path="/view-delivery-status"

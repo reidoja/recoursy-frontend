@@ -22,8 +22,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   listItem: {
     display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
     width: '100%',
     borderBottom: '1px solid rgba(50, 50, 50, 0.2)',
   },
@@ -56,27 +56,18 @@ export default function ViewWorkingHourPage({}: Props): ReactElement {
               const value = e.target.value;
               setThisSearch(value);
             }}
-            type="text"
-            onKeyPress={(ev) => {
-              if (ev.key === 'Enter') {
-                setSearch(thisSearch);
-              }
-            }}
+            type="time"
             variant="outlined"
-            InputProps={{
-              endAdornment: (
-                <IconButton
-                  onClick={() => {
-                    setSearch(thisSearch);
-                  }}
-                  size="small"
-                  className={classes.searchIcon}>
-                  <SearchIcon color="inherit" />
-                </IconButton>
-              ),
-            }}
             placeholder="Search..."
           />
+          <IconButton
+            onClick={() => {
+              setSearch(thisSearch);
+            }}
+            size="small"
+            className={classes.searchIcon}>
+            <SearchIcon color="inherit" />
+          </IconButton>
         </Box>
         <Card>
           <CardContent>
@@ -84,9 +75,13 @@ export default function ViewWorkingHourPage({}: Props): ReactElement {
               {dataWorkHour &&
                 dataWorkHour.map((el, index) => (
                   <ListItem key={index} className={classes.listItem}>
-                    <Box>
+                    <Box width="50%">
                       <Typography>From : {el.from}</Typography>
                       <Typography>To : {el.to}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography>Note: </Typography>
+                      <Typography>{el.note}</Typography>
                     </Box>
                   </ListItem>
                 ))}

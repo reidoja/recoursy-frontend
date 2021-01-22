@@ -4,4 +4,5 @@ export interface WorkHour {
   to: string;
   created_at: string;
   updated_at: string;
+  note: string;
 }

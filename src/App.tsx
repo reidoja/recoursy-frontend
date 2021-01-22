@@ -10,6 +10,7 @@ import userState from './states/UserState';
 import useAuthenticate from './effects/queries/auth/useAuthenticate';
 import { Box, Typography } from '@material-ui/core';
 import Loading from './components/Loading/Loading';
+import ViewWorkingHourPage from './pages/ViewWorkingHourPage/ViewWorkingHourPage';
 
 function App() {
   const [user, setUser] = useRecoilState(userState);
