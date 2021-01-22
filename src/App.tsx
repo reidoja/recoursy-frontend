@@ -77,6 +77,11 @@ function App() {
   return (
     <div className="App">
       <Switch>
+        <Route
+          exact
+          path="/view-all-working-hour"
+          component={ViewWorkingHourPage}
+        />
         <Route exact path="/login">
           {!user ? <LoginPage /> : <Redirect to="/" />}
         </Route>
