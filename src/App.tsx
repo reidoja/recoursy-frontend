@@ -11,6 +11,7 @@ import useAuthenticate from './effects/queries/auth/useAuthenticate';
 import { Box, Typography } from '@material-ui/core';
 import Loading from './components/Loading/Loading';
 import ViewWorkingHourPage from './pages/ViewWorkingHourPage/ViewWorkingHourPage';
+import ViewQueuePage from './pages/ViewQueuePage/ViewQueuePage';
 
 function App() {
   const [user, setUser] = useRecoilState(userState);
@@ -82,6 +83,7 @@ function App() {
           path="/view-all-working-hour"
           component={ViewWorkingHourPage}
         />
+        <Route exact path="/view-queue" component={ViewQueuePage} />
         <Route exact path="/login">
           {!user ? <LoginPage /> : <Redirect to="/" />}
         </Route>
