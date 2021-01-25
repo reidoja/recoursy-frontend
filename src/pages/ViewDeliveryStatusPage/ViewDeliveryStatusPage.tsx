@@ -11,7 +11,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import React, { ReactElement, useEffect, useState } from 'react';
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import SelectInput from '../../components/SelectInput/SelectInput';
 import useFetchAdminPending from '../../effects/queries/delivery/useFetchAdminPending';
 import useFetchAdminDelivered from '../../effects/queries/delivery/useFetchAdminDelivered';
@@ -40,44 +39,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'none',
   },
 }));
-
-const data = [
-  {
-    delivery_id: '12345',
-    date: 'Jan 16 2020',
-    from: '1305',
-    detail: [
-      {
-        item_name: 'Surat Peringatan',
-        to: '1405',
-        receiver: 'asd@gmail.com',
-        status: 'Pending',
-        note: 'Berkas warna coklat, tali merah',
-      },
-    ],
-  },
-  {
-    delivery_id: '12345',
-    date: 'Jan 16 2020',
-    from: '1305',
-    detail: [
-      {
-        item_name: 'Surat Peringatan',
-        to: '1405',
-        receiver: 'asd@gmail.com',
-        status: 'Pending',
-        note: 'Berkas warna coklat, tali merah',
-      },
-      {
-        item_name: 'Surat Peringatan',
-        to: '1405',
-        receiver: 'asd@gmail.com',
-        status: 'Pending',
-        note: 'Berkas warna coklat, tali merah',
-      },
-    ],
-  },
-];
 
 interface Props {}
 

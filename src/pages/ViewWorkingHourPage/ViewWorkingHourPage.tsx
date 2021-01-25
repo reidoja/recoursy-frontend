@@ -2,17 +2,14 @@ import {
   Box,
   Card,
   CardContent,
-  IconButton,
   List,
   ListItem,
   makeStyles,
-  TextField,
   Theme,
   Typography,
 } from '@material-ui/core';
 import React, { ReactElement, useState } from 'react';
 import useFetchWorkHour from '../../effects/queries/workhour/useFetchWorkHour';
-import SearchIcon from '@material-ui/icons/Search';
 
 interface Props {}
 
@@ -39,9 +36,9 @@ export default function ViewWorkingHourPage({}: Props): ReactElement {
   const classes = useStyles();
 
   const [search, setSearch] = useState('');
-  const [thisSearch, setThisSearch] = useState('');
+  // const [thisSearch, setThisSearch] = useState('');
 
-  const { data: dataWorkHour, error: errorWorkHour } = useFetchWorkHour(search);
+  const { data: dataWorkHour } = useFetchWorkHour(search);
 
   return (
     <Box width="100%" display="flex" justifyContent="center">

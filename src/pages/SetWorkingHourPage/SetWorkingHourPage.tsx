@@ -11,13 +11,15 @@ import {
   Theme,
   Typography,
 } from '@material-ui/core';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CustomModal from '../../components/CustomModal/CustomModal';
 import useFetchWorkHour from '../../effects/queries/workhour/useFetchWorkHour';
 import useCreateWorkHour from '../../effects/mutations/workhour/useCreateWorkHour';
 import useDeleteWorkHour from '../../effects/mutations/workhour/useDeleteWorkHour';
 import FullScreenLoading from '../../components/FullScreenLoading/FullScreenLoading';
+import ErrorModal from '../../components/NotificationModal/ErrorModal';
+import SuccessModal from '../../components/NotificationModal/SuccessModal';
 
 interface Props {}
 
@@ -49,8 +51,11 @@ const data = [
 export default function SetWorkingHourPage({}: Props): ReactElement {
   const classes = useStyles();
 
-  const { data: dataWorkHour, error: errorWorkHour } = useFetchWorkHour('');
+  const { data: dataWorkHour } = useFetchWorkHour('');
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const [wordHourState, setWordHourState] = useState<{
     from: string;
@@ -76,9 +81,39 @@ export default function SetWorkingHourPage({}: Props): ReactElement {
     { isLoading: isDeleterLoading, error: deleteError, status: deleteStatus },
   ] = useDeleteWorkHour();
 
+  useEffect(() => {
+    if (workHourError) {
+      setOpenError(true);
+    } else if (workHourStatus === 'success') {
+      setSuccessMessage('Add Success');
+      setOpenSuccess(true);
+    }
+  }, [workHourError, workHourStatus]);
+
+  useEffect(() => {
+    if (deleteError) {
+      setOpenError(true);
+    } else if (deleteStatus === 'success') {
+      setSuccessMessage('Delete Success');
+      setOpenSuccess(true);
+    }
+  }, [deleteError, deleteStatus]);
+
   return (
     <>
       <FullScreenLoading open={isDeleterLoading || isWorkHourLoading} />
+      <ErrorModal
+        error={deleteError || workHourError}
+        onButtonClickOrClose={() => setOpenError(false)}
+        open={openError}
+      />
+      <SuccessModal
+        desc={successMessage}
+        open={openSuccess}
+        onButtonClickOrClose={() => {
+          setOpenSuccess(false);
+        }}
+      />
       <CustomModal
         handleClose={() => setIsOpenModal(false)}
         open={isOpenModal}
