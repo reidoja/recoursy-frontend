@@ -12,7 +12,10 @@ import { useHistory } from 'react-router';
 import { useRecoilValue } from 'recoil';
 import useFetchAdminPending from '../../../effects/queries/delivery/useFetchAdminPending';
 import useFetchWorkHour from '../../../effects/queries/workhour/useFetchWorkHour';
-import { DeliveryHistory } from '../../../models/Delivery';
+import {
+  DeliveryHistory,
+  DeliveryHistoryDetail,
+} from '../../../models/Delivery';
 import { WorkHour } from '../../../models/Workhour';
 import userState from '../../../states/UserState';
 import formatDateAndTime from '../../../utils/formatDateAndTime';
@@ -37,22 +40,19 @@ export default function AdminHome({}: Props): ReactElement {
   const { data: dataWorkHour } = useFetchWorkHour('');
 
   const [recentAdminPending, setRecentAdminPending] = useState<
-    DeliveryHistory[]
+    DeliveryHistoryDetail[]
   >([]);
   const [recentWorkHour, setRecentWorkHour] = useState<WorkHour[]>([]);
 
   useEffect(() => {
     if (!dataAdminPending) return;
-    let newArr: DeliveryHistory[] = [];
-    if (dataAdminPending.length > 2) {
-      for (let index = 0; index < 3; index++) {
-        if (dataAdminPending[index].details.length < 1) continue;
-        newArr.push(dataAdminPending[index]);
-      }
-    } else {
-      for (let index = 0; index < dataAdminPending.length; index++) {
-        if (dataAdminPending[index].details.length < 1) continue;
-        newArr.push(dataAdminPending[index]);
+    let newArr: DeliveryHistoryDetail[] = [];
+    let idx = 0;
+    for (let i = 0; i < dataAdminPending.length; i++) {
+      for (let j = 0; j < dataAdminPending[i].details.length; j++) {
+        if (idx > 2) break;
+        newArr.push(dataAdminPending[i].details[j]);
+        idx = idx + 1;
       }
     }
     setRecentAdminPending(newArr);
@@ -92,40 +92,35 @@ export default function AdminHome({}: Props): ReactElement {
         </Box>
         <Box width="100%" display="flex">
           {recentAdminPending.map((el, index) => (
-            <Box display="flex" key={index} flexGrow="1">
-              {el.details.map((el1, idx) => (
-                <Card key={idx} className={classes.card}>
-                  <CardContent>
-                    <Box
-                      width="100%"
-                      display="flex"
-                      flexDirection="column"
-                      alignItems="flex-start">
-                      <Typography>Delivery ID : {el.id}</Typography>
-                      <Typography>
-                        Date : {formatDateAndTime(el.create_at)}
-                      </Typography>
-                    </Box>
-                    <Box
-                      width="100%"
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center">
-                      <Box
-                        py={2}
-                        display="flex"
-                        flexDirection="column"
-                        alignItems="flex-start">
-                        <Typography>From : {el.from}</Typography>
-                        <Typography>To : {el1.room_destination}</Typography>
-                        <Typography>Receiver : {el1.to}</Typography>
-                      </Box>
-                      <Typography>Status : {el1.status}</Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
+            <Card key={index} className={classes.card}>
+              <CardContent>
+                <Box
+                  width="100%"
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="flex-start">
+                  <Typography>Delivery ID : {el.id}</Typography>
+                  <Typography>
+                    Date : {formatDateAndTime(el.created_at)}
+                  </Typography>
+                </Box>
+                <Box
+                  width="100%"
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center">
+                  <Box
+                    py={2}
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="flex-start">
+                    <Typography>To : {el.room_destination}</Typography>
+                    <Typography>Receiver : {el.to}</Typography>
+                  </Box>
+                  <Typography>Status : {el.status}</Typography>
+                </Box>
+              </CardContent>
+            </Card>
           ))}
         </Box>
       </Box>

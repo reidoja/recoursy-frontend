@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     },
   },
   button: {
-    margin: `0 ${theme.spacing(1)}px`,
+    // margin: `0 ${theme.spacing(1)}px`,
   },
 }));
 

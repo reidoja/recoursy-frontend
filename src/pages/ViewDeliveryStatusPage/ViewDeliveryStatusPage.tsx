@@ -18,6 +18,9 @@ import useFetchAdminDelivered from '../../effects/queries/delivery/useFetchAdmin
 import formatDateAndTime from '../../utils/formatDateAndTime';
 import { DeliveryHistory } from '../../models/Delivery';
 import useUpdateStatusDelivery from '../../effects/mutations/delivery/useUpdateStatusDelivery';
+import FullScreenLoading from '../../components/FullScreenLoading/FullScreenLoading';
+import ErrorModal from '../../components/NotificationModal/ErrorModal';
+import SuccessModal from '../../components/NotificationModal/SuccessModal';
 
 const useStyles = makeStyles((theme: Theme) => ({
   list: {
@@ -91,6 +94,9 @@ export default function ViewDeliveryStatusPage({}: Props): ReactElement {
     DeliveryHistory[]
   >([]);
 
+  const [openError, setOpenError] = useState(false);
+  const [openSuccess, setOpenSuccess] = useState(false);
+
   const [
     updateStatusDelivery,
     {
@@ -118,8 +124,29 @@ export default function ViewDeliveryStatusPage({}: Props): ReactElement {
     setAdminDeliveredState(newData);
   }, [dataAdminDelivered]);
 
+  useEffect(() => {
+    if (deliveryError) {
+      setOpenError(true);
+    } else if (deliveryStatus === 'success') {
+      setOpenSuccess(true);
+    }
+  }, [deliveryError, deliveryStatus]);
+
   return (
     <Box width="100%" display="flex" justifyContent="center">
+      <FullScreenLoading open={isDeliveryLoading} />
+      <ErrorModal
+        error={deliveryError}
+        onButtonClickOrClose={() => setOpenError(false)}
+        open={openError}
+      />
+      <SuccessModal
+        desc="Update Success"
+        open={openSuccess}
+        onButtonClickOrClose={() => {
+          setOpenSuccess(false);
+        }}
+      />
       <Box width="100%" p={2}>
         <Box display="flex" justifyContent="flex-start" my={2}>
           <Box width="50%">
@@ -323,7 +350,16 @@ export default function ViewDeliveryStatusPage({}: Props): ReactElement {
                             width="100%"
                             display="flex"
                             justifyContent="flex-end">
-                            <Button variant="contained" color="primary">
+                            <Button
+                              onClick={() => {
+                                const data = {
+                                  id: el1.id,
+                                  status: el1.status,
+                                };
+                                updateStatusDelivery(data);
+                              }}
+                              variant="contained"
+                              color="primary">
                               Update
                             </Button>
                           </Box>

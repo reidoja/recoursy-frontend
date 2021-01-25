@@ -17,6 +17,7 @@ import CustomModal from '../../components/CustomModal/CustomModal';
 import useFetchWorkHour from '../../effects/queries/workhour/useFetchWorkHour';
 import useCreateWorkHour from '../../effects/mutations/workhour/useCreateWorkHour';
 import useDeleteWorkHour from '../../effects/mutations/workhour/useDeleteWorkHour';
+import FullScreenLoading from '../../components/FullScreenLoading/FullScreenLoading';
 
 interface Props {}
 
@@ -77,6 +78,7 @@ export default function SetWorkingHourPage({}: Props): ReactElement {
 
   return (
     <>
+      <FullScreenLoading open={isDeleterLoading || isWorkHourLoading} />
       <CustomModal
         handleClose={() => setIsOpenModal(false)}
         open={isOpenModal}

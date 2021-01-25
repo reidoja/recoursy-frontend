@@ -49,26 +49,6 @@ export default function ViewWorkingHourPage({}: Props): ReactElement {
         <Box display="flex" justifyContent="flex-start" my={2}>
           <Typography variant="h4">Working Hour</Typography>
         </Box>
-        <Box width="100%" display="flex" justifyContent="flex-end" py={2}>
-          <TextField
-            value={thisSearch}
-            onChange={(e) => {
-              const value = e.target.value;
-              setThisSearch(value);
-            }}
-            type="time"
-            variant="outlined"
-            placeholder="Search..."
-          />
-          <IconButton
-            onClick={() => {
-              setSearch(thisSearch);
-            }}
-            size="small"
-            className={classes.searchIcon}>
-            <SearchIcon color="inherit" />
-          </IconButton>
-        </Box>
         <Card>
           <CardContent>
             <List>

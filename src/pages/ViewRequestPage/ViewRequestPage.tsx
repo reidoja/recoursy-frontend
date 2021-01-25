@@ -10,7 +10,10 @@ import {
   Theme,
   Typography,
 } from '@material-ui/core';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
+import FullScreenLoading from '../../components/FullScreenLoading/FullScreenLoading';
+import ErrorModal from '../../components/NotificationModal/ErrorModal';
+import SuccessModal from '../../components/NotificationModal/SuccessModal';
 import useCancelDelivery from '../../effects/mutations/delivery/useCancelDelivery';
 import useFetchRequest from '../../effects/queries/delivery/useFetchRequest';
 import formatDateAndTime from '../../utils/formatDateAndTime';
@@ -37,6 +40,10 @@ export default function ViewRequestPage({}: Props): ReactElement {
   const classes = useStyles();
 
   const { data: dataRequest } = useFetchRequest();
+
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
+
   const [
     cancelDelivery,
     {
@@ -46,8 +53,29 @@ export default function ViewRequestPage({}: Props): ReactElement {
     },
   ] = useCancelDelivery();
 
+  useEffect(() => {
+    if (deliveryError) {
+      setOpenError(true);
+    } else if (deliveryStatus === 'success') {
+      setOpenSuccess(true);
+    }
+  }, [deliveryError, deliveryStatus]);
+
   return (
     <Box width="100%" display="flex" justifyContent="center">
+      <FullScreenLoading open={isDeliveryLoading} />
+      <SuccessModal
+        desc="Cancel Success"
+        open={openSuccess}
+        onButtonClickOrClose={() => {
+          setOpenSuccess(false);
+        }}
+      />
+      <ErrorModal
+        error={deliveryError}
+        onButtonClickOrClose={() => setOpenError(false)}
+        open={openError}
+      />
       <Box width="80%" p={2}>
         <Box display="flex" justifyContent="flex-start" my={2}>
           <Typography variant="h4">View Request</Typography>
