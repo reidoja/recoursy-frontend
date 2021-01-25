@@ -53,8 +53,8 @@ export default function ViewRequestPage({}: Props): ReactElement {
           <Typography variant="h4">View Request</Typography>
         </Box>
         {dataRequest &&
-          dataRequest.map((el) => (
-            <>
+          dataRequest.map((el, idx) => (
+            <Box key={idx}>
               {el.details.map((el1, index) => (
                 <Card className={classes.card} key={index}>
                   <CardContent>
@@ -115,7 +115,7 @@ export default function ViewRequestPage({}: Props): ReactElement {
                   </CardContent>
                 </Card>
               ))}
-            </>
+            </Box>
           ))}
       </Box>
     </Box>

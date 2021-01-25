@@ -4,7 +4,6 @@ interface Props {
   size?: string;
   noPadding?: boolean;
   noMargin?: boolean;
-  lightColor?: boolean;
   className?: string;
 }
 
@@ -12,7 +11,6 @@ export default function Loading({
   size = '100',
   noPadding,
   noMargin,
-  lightColor,
   className,
 }: Props) {
   return (
@@ -33,7 +31,7 @@ export default function Loading({
         cx="50"
         cy="50"
         fill="none"
-        stroke={lightColor ? '#a3d4dd' : '#035d74'}
+        stroke="#3f51b5"
         strokeWidth="10"
         r="35"
         strokeDasharray="164.93361431346415 56.97787143782138">
