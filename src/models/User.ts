@@ -13,4 +13,5 @@ export interface FullUserData {
   name: string;
   email: string;
   role: string;
+  hasNotif: boolean;
 }

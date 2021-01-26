@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Badge,
   Box,
   Button,
   IconButton,
@@ -11,7 +12,7 @@ import {
   Toolbar,
   Typography,
 } from '@material-ui/core';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
 import MenuIcon from '@material-ui/icons/Menu';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
@@ -19,6 +20,7 @@ import { useHistory } from 'react-router';
 import { eraseCookie } from '../../utils/cookies';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import userState from '../../states/UserState';
+import useFetchNotif from '../../effects/queries/notif/useFetchNotif';
 interface Props {}
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -86,6 +88,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  pointer: {
+    cursor: 'pointer',
+  },
 }));
 
 export default function Navbar({}: Props): ReactElement {
@@ -94,6 +99,16 @@ export default function Navbar({}: Props): ReactElement {
   const [isOpen, setIsOpen] = useState(false);
 
   const [user, setUser] = useRecoilState(userState);
+
+  const { data, refetch: fetchNotif, status } = useFetchNotif(
+    user?.user.id || 0
+  );
+
+  useEffect(() => {
+    if (status === 'success') {
+      window.location.reload();
+    }
+  }, [status]);
 
   const history = useHistory();
 
@@ -115,6 +130,26 @@ export default function Navbar({}: Props): ReactElement {
           noWrap>
           ReCourSy
         </Typography>
+        <Box
+          mr={2}
+          display="flex"
+          alignItems="center"
+          onClick={() => {
+            fetchNotif();
+            if (user?.user.role === 'admin') {
+              history.push('/view-delivery-status');
+            } else if (user?.user.role === 'user') {
+              history.push('/view-delivery-history');
+            }
+          }}
+          className={classes.pointer}>
+          <Badge
+            color="secondary"
+            variant="dot"
+            invisible={user?.user.hasNotif ? false : true}>
+            <NotificationsActiveIcon />
+          </Badge>
+        </Box>
         <Typography>Hello, {user?.user.name}</Typography>
         <Button
           onClick={() => {
