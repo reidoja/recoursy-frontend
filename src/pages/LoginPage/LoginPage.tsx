@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const fields: FieldInfo = {
-  email: { label: 'Email' },
+  email: { label: 'Email', type: 'email' },
   password: { label: 'Password', type: 'password' },
 };
 
